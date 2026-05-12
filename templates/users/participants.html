@@ -21,20 +21,20 @@
         <div class="participants-filter">
             <span class="filter-label">Фильтры пользователей:</span>
             <div class="filter-chips">
-                <a href="?filter=owners-of-favorite-projects"
-                   class="filter-chip {% if active_filter == 'owners-of-favorite-projects' %}active{% endif %}">
+                <a href="?filter=fav_authors"
+                   class="filter-chip {% if active_filter == 'fav_authors' %}active{% endif %}">
                     Авторы избранных проектов
                 </a>
-                <a href="?filter=owners-of-participating-projects"
-                   class="filter-chip {% if active_filter == 'owners-of-participating-projects' %}active{% endif %}">
+                <a href="?filter=participating"
+                   class="filter-chip {% if active_filter == 'participating' %}active{% endif %}">
                     Авторы проектов, в которых я участвую
                 </a>
-                <a href="?filter=interested-in-my-projects"
-                   class="filter-chip {% if active_filter == 'interested-in-my-projects' %}active{% endif %}">
+                <a href="?filter=fans"
+                   class="filter-chip {% if active_filter == 'fans' %}active{% endif %}">
                     Пользователи, которым нравятся мои проекты
                 </a>
-                <a href="?filter=participants-of-my-projects"
-                   class="filter-chip {% if active_filter == 'participants-of-my-projects' %}active{% endif %}">
+                <a href="?filter=my_participants"
+                   class="filter-chip {% if active_filter == 'my_participants' %}active{% endif %}">
                     Участники моих проектов
                 </a>
                 {% if active_filter %}
@@ -44,9 +44,9 @@
         </div>
     {% endif %}
 
-    {% if page_obj.object_list %}
+    {% if participants.object_list %}
     <div class="participants-grid">
-        {% for participant in page_obj %}
+        {% for participant in participants %}
         <div class="participant-card">
             <div class="participant-card-header">
                 {% if participant.avatar %}
@@ -67,20 +67,20 @@
         </div>
         {% endfor %}
     </div>
-    {% if page_obj.has_other_pages %}
+    {% if participants.has_other_pages %}
     <div class="pagination">
-        {% if page_obj.has_previous %}
-        <a href="?{{ query_prefix }}page={{ page_obj.previous_page_number }}" class="page-btn">←</a>
+        {% if participants.has_previous %}
+        <a href="?{{ query_prefix }}page={{ participants.previous_page_number }}" class="page-btn">←</a>
         {% endif %}
-        {% for num in page_obj.paginator.page_range %}
-        {% if page_obj.number == num %}
+        {% for num in participants.paginator.page_range %}
+        {% if participants.number == num %}
         <span class="page-btn active">{{ num }}</span>
         {% else %}
         <a href="?{{ query_prefix }}page={{ num }}" class="page-btn">{{ num }}</a>
         {% endif %}
         {% endfor %}
-        {% if page_obj.has_next %}
-        <a href="?{{ query_prefix }}page={{ page_obj.next_page_number }}" class="page-btn">→</a>
+        {% if participants.has_next %}
+        <a href="?{{ query_prefix }}page={{ participants.next_page_number }}" class="page-btn">→</a>
         {% endif %}
     </div>
     {% endif %}

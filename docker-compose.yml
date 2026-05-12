@@ -1,14 +1,39 @@
 services:
   db:
-    image: postgres:16
-    env_file:
-      - .env
-    container_name: teamfinder_db
-    ports:
-      - "5432:5432"
+    image: postgres:15
+    environment:
+      POSTGRES_DB: team_finder
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    restart: always
+    ports:
+      - "5432:5432"
+  web:
+    build: .
+    command: >
+      sh -c "echo 'Waiting for PostgreSQL...' &&
+             while ! pg_isready -h db -p 5432 -U postgres; do
+               echo 'Waiting...';
+               sleep 1;
+             done &&
+             echo 'PostgreSQL is ready!' &&
+             python manage.py migrate --noinput &&
+             python manage.py collectstatic --noinput &&
+             gunicorn team_finder.wsgi:application --bind 0.0.0.0:8000"
+    volumes:
+      - .:/app
+      - media_data:/app/media
+      - staticfiles_data:/app/staticfiles
+    ports:
+      - "8000:8000"
+    env_file: .env
+    environment:
+      DB_HOST: db
+    depends_on:
+      - db
 
 volumes:
   postgres_data:
+  media_data:
+  staticfiles_data:
