@@ -21,6 +21,13 @@ AVATAR_BG_COLORS = [
     "#3498DB",
 ]
 
+# Константы длин полей из ТЗ
+MAX_LENGTH_NAME = 124
+MAX_LENGTH_SURNAME = 124
+MAX_LENGTH_PHONE = 12
+MAX_LENGTH_ABOUT = 256
+MAX_LENGTH_PROJECT_NAME = 200
+
 
 def _load_avatar_font(size: int):
     font_paths = (
@@ -52,7 +59,7 @@ def _render_avatar_png(name: str):
     return buffer, filename
 
 
-class CustomUserManager(BaseUserManager):
+class UserManager(BaseUserManager):
     use_in_migrations = True
 
     def create_user(self, email, name, surname, password=None, **extra_fields):
@@ -77,12 +84,12 @@ class CustomUserManager(BaseUserManager):
 
 class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(unique=True)
-    name = models.CharField(max_length=124)
-    surname = models.CharField(max_length=124)
+    name = models.CharField(max_length=MAX_LENGTH_NAME)
+    surname = models.CharField(max_length=MAX_LENGTH_SURNAME)
     avatar = models.ImageField(upload_to="avatars/")
-    phone = models.CharField(max_length=12, default="")
+    phone = models.CharField(max_length=MAX_LENGTH_PHONE, default="")
     github_url = models.URLField(blank=True, default="")
-    about = models.TextField(max_length=256, blank=True, default="")
+    about = models.TextField(max_length=MAX_LENGTH_ABOUT, blank=True, default="")
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     date_joined = models.DateTimeField(auto_now_add=True)
@@ -95,9 +102,10 @@ class User(AbstractBaseUser, PermissionsMixin):
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["name", "surname"]
 
-    objects = CustomUserManager()
+    objects = UserManager()
 
     class Meta:
+        ordering = ["-date_joined"]
         verbose_name = "user"
         verbose_name_plural = "users"
 

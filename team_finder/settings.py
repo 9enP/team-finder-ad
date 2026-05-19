@@ -4,7 +4,7 @@ from decouple import Csv, config
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = config("SECRET_KEY")
+SECRET_KEY = config("SECRET_KEY", default="unsafe-secret-key-for-dev")
 
 DEBUG = config("DEBUG", default=False, cast=bool)
 
@@ -85,9 +85,9 @@ if not DEBUG:
         ]
     )
 
-LANGUAGE_CODE = "en-us"
+LANGUAGE_CODE = "ru"
 
-TIME_ZONE = "UTC"
+TIME_ZONE = "Europe/Moscow"
 
 USE_I18N = True
 
@@ -102,6 +102,6 @@ STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
-LOGIN_URL = "/users/login/"
+LOGIN_URL = "users:login"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"

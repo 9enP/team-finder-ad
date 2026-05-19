@@ -1,44 +1,177 @@
-## TeamFinder — Вариант 1
+Вот что нужно поправить:
 
-### Локальный запуск (Docker Compose)
+1. **Django REST Framework** — его нет в проекте, мы не использовали. Убери.
+2. **Swagger** — нет, ссылка нерабочая. Убери `http://localhost:8000/swagger/`.
+3. **Миграции** — они и так выполняются при старте Docker. Шаг 3 лишний, убери.
+4. **Опечатка в `down`** — написано `donw`, исправь на `down`.
+
+---
+
+Исправленный вариант:
+
+```markdown
+# TeamFinder — Вариант 1
+
+## Автор
+
+ФИО: Просвирнин Денис Александрович  
+GitHub: https://github.com/9enP
+
+---
+
+## Технологии
+
+- Python
+- Django
+- PostgreSQL
+- Docker
+- Docker Compose
+- Pytest
+- GitHub Actions
+
+---
+
+## Клонирование репозитория
+
+```bash
+git clone https://github.com/9enP/team-finder-ad.git
+cd team-finder-ad
+```
+
+---
+
+## Локальный запуск (Docker Compose)
 
 Рекомендуемый способ: приложение и PostgreSQL поднимаются вместе.
 
-1. Скопируйте окружение: `cp .env.example .env` и при необходимости отредактируйте. Для сервиса `web` в `docker-compose.yml` задано `DB_HOST=db` (подключение к контейнеру PostgreSQL).
+### 1. Настройка окружения
 
-2. Сборка и запуск:
+Скопируйте файл окружения:
+
+```bash
+cp .env.example .env
+```
+
+При необходимости отредактируйте `.env`.
+
+Для сервиса `web` в `docker-compose.yml` используется:
+
+```env
+DB_HOST=db
+```
+
+что позволяет приложению подключаться к контейнеру PostgreSQL.
+
+---
+
+### 2. Сборка и запуск контейнеров
 
 ```bash
 docker compose up --build
 ```
 
-3. После успешного старта загрузите тестовые данные (один раз или при необходимости):
+Миграции выполняются автоматически при старте.
+
+---
+
+### 3. Загрузка тестовых данных
 
 ```bash
 docker compose exec web python manage.py create_test_data
 ```
 
-4. Откройте в браузере: http://localhost:8000/
+Команда выполняется один раз после первого запуска или при необходимости повторного заполнения базы.
 
-Остановка: `docker compose down`. Данные БД и медиа — в томах `postgres_data` и `media_data`.
+---
 
-### Локально без Docker
+### 4. Открытие проекта
 
-Нужен установленный PostgreSQL; в `.env` укажите `DB_HOST=localhost` и остальные `DB_*` как у вашего сервера.
+- **Сайт:** http://localhost:8000
+- **Админ-панель:** http://localhost:8000/admin/
+
+---
+
+## Тестовые аккаунты
+
+| Роль | Email | Пароль |
+|------|-------|--------|
+| Администратор | admin@admin.com | admin |
+| Пользователь | maria@example.com | password123 |
+| Пользователь | alex@example.com | password123 |
+| Пользователь | kate@example.com | password123 |
+
+---
+
+### Остановка контейнеров
+
+```bash
+docker compose down
+```
+
+Данные PostgreSQL и медиафайлы сохраняются в Docker volumes:
+
+- `postgres_data`
+- `media_data`
+
+Для полной очистки:
+
+```bash
+docker compose down -v
+```
+
+---
+
+## Локальный запуск без Docker
+
+Требуется установленный PostgreSQL.
+
+В файле `.env` укажите:
+
+```env
+DB_HOST=localhost
+```
+
+а также остальные параметры `DB_*` в соответствии с настройками локальной базы данных.
+
+### Установка зависимостей
 
 ```bash
 pip install -r requirements.txt
+```
+
+### Применение миграций
+
+```bash
 python manage.py migrate
+```
+
+### Загрузка тестовых данных
+
+```bash
+python manage.py create_test_data
+```
+
+### Запуск сервера
+
+```bash
 python manage.py runserver
 ```
 
-### Тесты
+---
+
+## Тесты
+
+### Запуск через pytest
 
 ```bash
-pip install -r requirements.txt
 pytest
-# или
-python manage.py test
 ```
 
-В CI (GitHub Actions) тесты выполняются с PostgreSQL (см. `.github/workflows/check.yml`).
+### Запуск через Docker
+
+```bash
+docker compose exec web pytest
+```
+
+В CI (GitHub Actions) тесты выполняются с PostgreSQL  
+(см. `.github/workflows/check.yml`).

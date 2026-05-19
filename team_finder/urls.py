@@ -5,7 +5,10 @@ from django.urls import include, path
 from django.views.generic import RedirectView
 
 urlpatterns = [
-    path("", RedirectView.as_view(url="/projects/list/", permanent=False)),
+    path(
+        "",
+        RedirectView.as_view(pattern_name="projects:project_list", permanent=False),
+    ),
     path("admin/", admin.site.urls),
     path(
         "users/",
