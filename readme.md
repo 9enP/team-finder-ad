@@ -1,21 +1,9 @@
-Вот что нужно поправить:
-
-1. **Django REST Framework** — его нет в проекте, мы не использовали. Убери.
-2. **Swagger** — нет, ссылка нерабочая. Убери `http://localhost:8000/swagger/`.
-3. **Миграции** — они и так выполняются при старте Docker. Шаг 3 лишний, убери.
-4. **Опечатка в `down`** — написано `donw`, исправь на `down`.
-
----
-
-Исправленный вариант:
-
-```markdown
 # TeamFinder — Вариант 1
 
 ## Автор
 
 ФИО: Просвирнин Денис Александрович  
-GitHub: https://github.com/9enP
+GitHub: [9enP](https://github.com/9enP)
 
 ---
 
@@ -49,7 +37,7 @@ cd team-finder-ad
 Скопируйте файл окружения:
 
 ```bash
-cp .env.example .env
+cp .env_example .env
 ```
 
 При необходимости отредактируйте `.env`.
@@ -86,15 +74,15 @@ docker compose exec web python manage.py create_test_data
 
 ### 4. Открытие проекта
 
-- **Сайт:** http://localhost:8000
-- **Админ-панель:** http://localhost:8000/admin/
+- [Сайт](http://localhost:8000)
+- [Админ-панель](http://localhost:8000/admin/)
 
 ---
 
 ## Тестовые аккаунты
 
 | Роль | Email | Пароль |
-|------|-------|--------|
+|------|--------|--------|
 | Администратор | admin@admin.com | admin |
 | Пользователь | maria@example.com | password123 |
 | Пользователь | alex@example.com | password123 |

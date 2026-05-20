@@ -94,33 +94,29 @@ class ChangePasswordView(LoginRequiredMixin, View):
 class ParticipantsView(View):
     def get(self, request):
         filter_value = request.GET.get("filter", "")
-        qs = User.objects.filter(is_active=True)
 
         if request.user.is_authenticated and filter_value:
             if filter_value == "fav_authors":
                 qs = User.objects.filter(
                     owned_projects__in=request.user.favorites.all(),
-                    is_active=True,
-                ).distinct()
+                )
             elif filter_value == "participating":
                 qs = User.objects.filter(
                     owned_projects__participants=request.user,
-                    is_active=True,
-                ).distinct()
+                )
             elif filter_value == "fans":
                 qs = User.objects.filter(
                     favorites__in=request.user.owned_projects.all(),
-                    is_active=True,
-                ).distinct()
-            elif filter_value == "my_participants":
-                qs = (
-                    User.objects.filter(
-                        participated_projects__in=request.user.owned_projects.all(),
-                        is_active=True,
-                    )
-                    .exclude(pk=request.user.pk)
-                    .distinct()
                 )
+            elif filter_value == "my_participants":
+                qs = User.objects.filter(
+                    participated_projects__in=request.user.owned_projects.all(),
+                ).exclude(pk=request.user.pk)
+            else:
+                qs = User.objects.all()
+            qs = qs.filter(is_active=True).distinct()
+        else:
+            qs = User.objects.filter(is_active=True)
 
         paginator = Paginator(qs, USERS_PER_PAGE)
         page_number = request.GET.get("page", 1)

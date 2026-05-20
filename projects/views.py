@@ -1,7 +1,7 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.paginator import Paginator
 from django.http import HttpResponseForbidden, JsonResponse
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import get_object_or_404, render
 from django.urls import reverse_lazy
 from django.views import View
 from django.views.generic import CreateView, UpdateView
@@ -14,8 +14,8 @@ from .models import Project, PROJECT_STATUS_OPEN, PROJECT_STATUS_CLOSED
 PROJECTS_PER_PAGE = 12
 
 
-def paginate_projects(qs, request):
-    paginator = Paginator(qs, PROJECTS_PER_PAGE)
+def paginate_projects(qs, request, per_page=PROJECTS_PER_PAGE):
+    paginator = Paginator(qs, per_page)
     page_number = request.GET.get("page", 1)
     return paginator.get_page(page_number)
 
@@ -65,9 +65,7 @@ class CreateProjectView(LoginRequiredMixin, CreateView):
         )
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["is_edit"] = False
-        return context
+        return super().get_context_data(**kwargs, is_edit=False)
 
 
 class EditProjectView(LoginRequiredMixin, UpdateView):
@@ -79,7 +77,9 @@ class EditProjectView(LoginRequiredMixin, UpdateView):
     def dispatch(self, request, *args, **kwargs):
         self.object = self.get_object()
         if self.object.owner != request.user:
-            return HttpResponseForbidden()
+            return HttpResponseForbidden(
+                "Редактировать проект может только его автор."
+            )
         return super().dispatch(request, *args, **kwargs)
 
     def get_success_url(self):
@@ -89,9 +89,7 @@ class EditProjectView(LoginRequiredMixin, UpdateView):
         )
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["is_edit"] = True
-        return context
+        return super().get_context_data(**kwargs, is_edit=True)
 
 
 class CompleteProjectView(LoginRequiredMixin, View):
@@ -99,8 +97,21 @@ class CompleteProjectView(LoginRequiredMixin, View):
 
     def post(self, request, project_pk):
         project = get_object_or_404(Project, pk=project_pk)
-        if request.user != project.owner or project.status != PROJECT_STATUS_OPEN:
-            return JsonResponse({"status": "error"}, status=403)
+
+        if request.user != project.owner:
+            return JsonResponse(
+                {
+                    "status": "error",
+                    "message": "Завершить проект может только его автор."
+                },
+                status=403,
+            )
+        if project.status != PROJECT_STATUS_OPEN:
+            return JsonResponse(
+                {"status": "error", "message": "Проект уже завершён."},
+                status=403,
+            )
+
         project.status = PROJECT_STATUS_CLOSED
         project.save()
         return JsonResponse({"status": "ok", "project_status": project.status})
@@ -127,7 +138,13 @@ class ToggleParticipateView(LoginRequiredMixin, View):
         project = get_object_or_404(Project, pk=project_pk)
         user = request.user
         if user == project.owner:
-            return JsonResponse({"status": "error"}, status=403)
+            return JsonResponse(
+                {
+                    "status": "error",
+                    "message": "Автор проекта не может стать его участником."
+                },
+                status=403,
+            )
         is_participant = project.participants.filter(pk=user.pk).exists()
         if is_participant:
             project.participants.remove(user)
